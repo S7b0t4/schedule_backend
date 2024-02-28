@@ -19,12 +19,16 @@ let selectAll = "SELECT * FROM schedule";
 const app = express();
 const PORT = 5000;
 
+
+/* 
 const options = {
   cert: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
   key: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
 };
 
 const server = https.createServer(options, app);
+ */
+
 
 const cors = require("cors")
 
@@ -37,6 +41,8 @@ const corsOrigin = {
 app.use(cors(corsOrigin));
 app.use(bodyParser.json());
 
+
+
 app.get("/", (req, res) => {
   db.all(selectAll, (err, rows) => {
     if (err) {
@@ -45,6 +51,8 @@ app.get("/", (req, res) => {
     res.send(rows)
   });
 })
+
+
 
 app.post('/rewrite', async (req, res) => {
   console.log("try update")
@@ -107,7 +115,7 @@ app.post('/rewrite', async (req, res) => {
     }
 
     function removeEmptyArrays(arr) {
-      return arr.filter(subArray => !subArray.every(value => value === ''));
+      return arr.filter(subArray => !subArray.every(value => value === '' || value === []));
     }
 
     scheduleData = removeEmptyArrays(scheduleData)
@@ -147,6 +155,7 @@ app.post('/rewrite', async (req, res) => {
           break
         }
       }
+
       if (scheduleData[2].length === scheduleData[3].length + 1 && scheduleData[2].length === scheduleData[4].length + 1) {
         addValueAtIndex(scheduleData[3], 1, "")
         addValueAtIndex(scheduleData[4], 1, "")
@@ -170,7 +179,9 @@ app.post('/rewrite', async (req, res) => {
     combineValues(scheduleData, 4, 6)
     combineValues(scheduleData, 6, 8)
     combineValues(scheduleData, 8, 10)
-    combineValues(scheduleData, 10, 12)
+    if(scheduleData.length > 9){
+      combineValues(scheduleData, 10, 12)
+    }
 
     for (let i = 2; i < scheduleData.length; i++) {
       if (Array.isArray(scheduleData[i])) {
@@ -181,11 +192,38 @@ app.post('/rewrite', async (req, res) => {
         }
         scheduleData[i].forEach((element, index) => {
           if (typeof element === 'string') {
-            scheduleData[i][index] = element.replace(/\s+/g, ' ')
+            scheduleData[i][index] = element.replace(/\s+/g, ' ').trim()
           }
         })
       }
-    } day, month, year
+    }
+
+    const hasDuplicates = (array) => {
+        return new Set(array).size !== array.length;
+    }
+
+
+    if (hasDuplicates(scheduleData[1])) {
+      console.log("dose")
+      if (scheduleData[1][1] === scheduleData[1][2]) {
+          scheduleData[1][1] = "1Ф1-23";
+          scheduleData[1][2] = "1Пр1-23";
+      }
+    }
+    else if (!hasDuplicates(scheduleData[1])) {
+      for (let i = 0; i < scheduleData.length; i++) {
+        if (Array.isArray(scheduleData[i])) {
+          if (scheduleData[i].length > 3) {
+            addValueAtIndex(scheduleData[i], 1, scheduleData[i][1])
+          }
+        }
+      }
+      scheduleData[1][1] = "1Ф1-23";
+      scheduleData[1][2] = "1Пр1-23";
+    }
+
+    scheduleData[1] = scheduleData[1].filter(element => element !== "" && element !== undefined)
+
 
     db.run(insertQuery, [`${day}.${month}.${year}`, JSON.stringify(scheduleData)], ((err) => {
       if (err) {
@@ -197,6 +235,8 @@ app.post('/rewrite', async (req, res) => {
   }
   getSchedule(req.day, req.month, req.year)
 })
+
+
 
 app.post('/post', async (req, res) => {
   console.log("try to find in bd")
@@ -212,6 +252,8 @@ app.post('/post', async (req, res) => {
     });
 });
 
-server.listen(PORT, () => {
+
+
+app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
