@@ -1,4 +1,5 @@
 const https = require('https');
+const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -20,14 +21,14 @@ const app = express();
 const PORT = 5000;
 
 
-/* 
+
 const options = {
   cert: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
   key: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
 };
 
 const server = https.createServer(options, app);
- */
+
 
 
 const cors = require("cors")
@@ -254,6 +255,6 @@ app.post('/post', async (req, res) => {
 
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
