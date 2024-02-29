@@ -1,5 +1,5 @@
 const https = require('https');
-const fs = require('fs');
+/* const fs = require('fs'); */
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -22,12 +22,12 @@ const PORT = 5000;
 
 
 
-const options = {
-  cert: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
-};
+/* const options = {
+  cert: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
+  key: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
+}; 
 
-const server = https.createServer(options, app);
+const server = https.createServer(options, app); */
 
 
 
@@ -203,15 +203,9 @@ app.post('/rewrite', async (req, res) => {
         return new Set(array).size !== array.length;
     }
 
-
-    if (hasDuplicates(scheduleData[1])) {
-      console.log("dose")
-      if (scheduleData[1][1] === scheduleData[1][2]) {
-          scheduleData[1][1] = "1Ф1-23";
-          scheduleData[1][2] = "1Пр1-23";
-      }
-    }
-    else if (!hasDuplicates(scheduleData[1])) {
+    console.log(!hasDuplicates(scheduleData[1]))
+    console.log(hasDuplicates(scheduleData[1]))
+    if (!hasDuplicates(scheduleData[1])) {
       for (let i = 0; i < scheduleData.length; i++) {
         if (Array.isArray(scheduleData[i])) {
           if (scheduleData[i].length > 3) {
@@ -222,6 +216,21 @@ app.post('/rewrite', async (req, res) => {
       scheduleData[1][1] = "1Ф1-23";
       scheduleData[1][2] = "1Пр1-23";
     }
+
+    if (hasDuplicates(scheduleData[1])) {
+      console.log("dose")
+      if (scheduleData[1][1] === scheduleData[1][2]) {
+          scheduleData[1][1] = "1Ф1-23";
+          scheduleData[1][2] = "1Пр1-23";
+      }
+    }
+    if(scheduleData[1].includes("1ФП1-23")){
+      addValueAtIndex(scheduleData[1], 1, scheduleData[1][1])
+      scheduleData[1][1] = "1Ф1-23";
+      scheduleData[1][2] = "1Пр1-23";
+    }
+    
+    console.log(scheduleData[1])
 
     scheduleData[1] = scheduleData[1].filter(element => element !== "" && element !== undefined)
 
@@ -255,6 +264,6 @@ app.post('/post', async (req, res) => {
 
 
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
