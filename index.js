@@ -21,6 +21,12 @@ let selectAll = "SELECT * FROM schedule";
 const app = express();
 const PORT = 443;
 
+app.use((req, res, next) => {
+  const requestTime = new Date().toISOString();
+  req.timestamp = requestTime;
+  next();
+});
+
 
 app.use(express.static(path.join(__dirname, './Client/build')));
 
@@ -63,6 +69,8 @@ app.get("/data", (req, res) => {
 
 app.post('/rewrite', async (req, res) => {
   console.log("try update")
+  console.log(req.timestamp)
+  console.log(req.ip)
   res.set("Access-Control-Allow-Origin", "*");
   req = req.body
   const getSchedule = async (day, month, year) => {
@@ -72,6 +80,8 @@ app.post('/rewrite', async (req, res) => {
     }))
 
     console.log(`try to find ${day}.${month}.${year}`)
+    console.log(req.timestamp)
+    console.log(req.ip)
     let response = await axios.get(`https://nouoet.ru/Users/schedule/22-2-2024.htm`, { responseType: 'arraybuffer' });
     try {
       response = await axios.get(`https://nouoet.ru/Users/schedule/${day}-${month}-${year}.htm`, { responseType: 'arraybuffer' });
@@ -208,9 +218,6 @@ app.post('/rewrite', async (req, res) => {
     const hasDuplicates = (array) => {
         return new Set(array).size !== array.length;
     }
-
-    console.log(!hasDuplicates(scheduleData[1]))
-    console.log(hasDuplicates(scheduleData[1]))
     if (!hasDuplicates(scheduleData[1])) {
       for (let i = 0; i < scheduleData.length; i++) {
         if (Array.isArray(scheduleData[i])) {
@@ -224,7 +231,6 @@ app.post('/rewrite', async (req, res) => {
     }
 
     if (hasDuplicates(scheduleData[1])) {
-      console.log("dose")
       if (scheduleData[1][1] === scheduleData[1][2]) {
           scheduleData[1][1] = "1Ф1-23";
           scheduleData[1][2] = "1Пр1-23";
@@ -235,8 +241,6 @@ app.post('/rewrite', async (req, res) => {
       scheduleData[1][1] = "1Ф1-23";
       scheduleData[1][2] = "1Пр1-23";
     }
-    
-    console.log(scheduleData[1])
 
     scheduleData[1] = scheduleData[1].filter(element => element !== "" && element !== undefined)
 
@@ -256,6 +260,8 @@ app.post('/rewrite', async (req, res) => {
 
 app.post('/post', async (req, res) => {
   console.log("try to find in bd")
+  console.log(req.timestamp)
+  console.log(req.ip)
   res.set("Access-Control-Allow-Origin", "*");
   req = req.body
   db.all(selectQuery, [`${req.day}.${req.month}.${req.year}`], (err, rows) => {
