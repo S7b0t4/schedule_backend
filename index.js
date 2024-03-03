@@ -1,10 +1,11 @@
 const https = require('https');
-/* const fs = require('fs'); */
+const fs = require('fs');
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const sqlite3 = require('sqlite3').verbose();
 
@@ -18,17 +19,22 @@ let deleteQuery = "DELETE FROM schedule WHERE date = ?"
 let selectAll = "SELECT * FROM schedule";
 
 const app = express();
-const PORT = 5000;
+const PORT = 443;
 
 
+app.use(express.static(path.join(__dirname, './Client/build')));
 
-/* const options = {
+const options = {
   cert: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
   key: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
 }; 
 
-const server = https.createServer(options, app); */
+const server = https.createServer(options, app);
 
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 
 const cors = require("cors")
@@ -44,7 +50,7 @@ app.use(bodyParser.json());
 
 
 
-app.get("/", (req, res) => {
+app.get("/data", (req, res) => {
   db.all(selectAll, (err, rows) => {
     if (err) {
       throw err;
@@ -264,6 +270,6 @@ app.post('/post', async (req, res) => {
 
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
