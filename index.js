@@ -248,10 +248,6 @@ app.post('/rewrite', async (req, res) => {
     }
 
     scheduleData[1] = scheduleData[1].filter(element => element !== "" && element !== undefined)
-    
-    console.log(scheduleData[2][1])
-    console.log(scheduleData[2][2])
-
 
     db.run(insertQuery, [`${day}.${month}.${year}`, JSON.stringify(scheduleData)], ((err) => {
       if (err) {
