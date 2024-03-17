@@ -19,7 +19,7 @@ let deleteQuery = "DELETE FROM schedule WHERE date = ?"
 let selectAll = "SELECT * FROM schedule";
 
 const app = express();
-const PORT = 443;
+const PORT = 5000;
 
 app.use((req, res, next) => {
   const requestTime = new Date().toISOString();
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 });
 
 
-app.use(express.static(path.join(__dirname, './Client/build')));
+/* app.use(express.static(path.join(__dirname, './Client/build')));
 
 const options = {
   cert: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
@@ -41,12 +41,12 @@ const server = https.createServer(options, app);
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
-
+*/
 
 const cors = require("cors")
 
 const corsOrigin = {
-  origin: ["https://s7b0t4-schedule.netlify.app", "http://localhost:3000"],
+  origin: ["https://s7b0t4-website-server.ru", "http://localhost:3000"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -214,10 +214,15 @@ app.post('/rewrite', async (req, res) => {
         })
       }
     }
+    
+    scheduleData[1] = scheduleData[1].filter(item => item.trim() !== '');
 
     const hasDuplicates = (array) => {
         return new Set(array).size !== array.length;
     }
+
+
+
     if (!hasDuplicates(scheduleData[1])) {
       for (let i = 0; i < scheduleData.length; i++) {
         if (Array.isArray(scheduleData[i])) {
@@ -243,6 +248,9 @@ app.post('/rewrite', async (req, res) => {
     }
 
     scheduleData[1] = scheduleData[1].filter(element => element !== "" && element !== undefined)
+    
+    console.log(scheduleData[2][1])
+    console.log(scheduleData[2][2])
 
 
     db.run(insertQuery, [`${day}.${month}.${year}`, JSON.stringify(scheduleData)], ((err) => {
@@ -255,8 +263,6 @@ app.post('/rewrite', async (req, res) => {
   }
   getSchedule(req.day, req.month, req.year)
 })
-
-
 
 app.post('/post', async (req, res) => {
   console.log("try to find in bd")
@@ -276,6 +282,6 @@ app.post('/post', async (req, res) => {
 
 
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
