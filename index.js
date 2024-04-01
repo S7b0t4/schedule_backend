@@ -189,6 +189,15 @@ app.post('/rewrite', async (req, res) => {
         if (scheduleData.length > 21) {
           addValueAtIndex(scheduleData[21], 1, "")
         }
+        if (scheduleData.length > 22) {
+          addValueAtIndex(scheduleData[22], 1, "")
+        }
+        if (scheduleData.length > 23) {
+          addValueAtIndex(scheduleData[23], 1, "")
+        }
+        if (scheduleData.length > 24) {
+          addValueAtIndex(scheduleData[24], 1, "")
+        }
       }
     }
 
@@ -199,11 +208,18 @@ app.post('/rewrite', async (req, res) => {
     if(scheduleData.length > 9){
       combineValues(scheduleData, 10, 12)
     }
+    if(scheduleData.length > 11){
+      combineValues(scheduleData, 12, 14)
+    }
+
 
     for (let i = 2; i < scheduleData.length; i++) {
       if (Array.isArray(scheduleData[i])) {
         if (typeof scheduleData[i][0] === 'string') {
           scheduleData[i][0] = scheduleData[i][0].split("-")
+          console.log("---")
+          console.log(scheduleData[i])
+          console.log("---")
           scheduleData[i][0][0] = scheduleData[i][0][0].replace(/\./g, ":").trim()
           scheduleData[i][0][1] = scheduleData[i][0][1].replace(/\./g, ":").trim()
         }
