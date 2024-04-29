@@ -1,3 +1,6 @@
 [submodule "client"]
 	path = client
 	url = https://github.com/S7b0t4/schedule.git
+[submodule "Client"]
+	path = Client
+	url = https://github.com/S7b0t4/schedule.git
