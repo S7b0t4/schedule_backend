@@ -1,5 +1,13 @@
-to start you need
+rm -rf Client
 
-### npm i 
+git submodule add https://github.com/S7b0t4/schedule.git Client
 
-### npm start
+cd Client
+
+npm i
+
+npm run build
+
+cd ..
+
+npm start
