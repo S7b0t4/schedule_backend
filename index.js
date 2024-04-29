@@ -1,5 +1,4 @@
-const https = require('https');
-const fs = require('fs');
+
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -28,21 +27,6 @@ app.use((req, res, next) => {
 });
 
 
-/* app.use(express.static(path.join(__dirname, './Client/build')));
-
-const options = {
-  cert: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/fullchain.pem'),
-  key: fs.readFileSync('../../etc/letsencrypt/live/s7b0t4-website-server.ru/privkey.pem')
-}; 
-
-const server = https.createServer(options, app);
-
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-*/
-
 const cors = require("cors")
 
 const corsOrigin = {
@@ -54,7 +38,11 @@ const corsOrigin = {
 app.use(cors(corsOrigin));
 app.use(bodyParser.json());
 
+app.use(express.static(path.join(__dirname, 'Client', 'build')));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Client', 'build', 'index.html'));
+});
 
 app.get("/data", (req, res) => {
   db.all(selectAll, (err, rows) => {
@@ -217,9 +205,6 @@ app.post('/rewrite', async (req, res) => {
       if (Array.isArray(scheduleData[i])) {
         if (typeof scheduleData[i][0] === 'string') {
           scheduleData[i][0] = scheduleData[i][0].split("-")
-          console.log("---")
-          console.log(scheduleData[i])
-          console.log("---")
           scheduleData[i][0][0] = scheduleData[i][0][0].replace(/\./g, ":").trim()
           scheduleData[i][0][1] = scheduleData[i][0][1].replace(/\./g, ":").trim()
         }
@@ -294,6 +279,6 @@ app.post('/post', async (req, res) => {
 
 
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
