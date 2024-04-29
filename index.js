@@ -143,6 +143,9 @@ app.post('/rewrite', async (req, res) => {
         }
       }
     }
+    while (scheduleData[1][0] != "ВРЕМЯ") {
+      scheduleData.shift()
+    }
 
     if (scheduleData[1][0] === "ВРЕМЯ") {
       for (let i = 2; i < scheduleData.length - 2; i++) {
